@@ -1,0 +1,91 @@
+import random
+
+DIFFICULTY_LEVELS = {
+    "1": {"name": "Easy",   "range": (1, 50),   "max_attempts": 10},
+    "2": {"name": "Medium", "range": (1, 100),  "max_attempts": 7},
+    "3": {"name": "Hard",   "range": (1, 200),  "max_attempts": 6},
+}
+
+
+def choose_difficulty():
+    """Show difficulty options and return the chosen settings."""
+    print("Select a difficulty level:")
+    for key, level in DIFFICULTY_LEVELS.items():
+        low, high = level["range"]
+        print(f"  {key}. {level['name']}  (range {low}-{high}, {level['max_attempts']} attempts)")
+
+    while True:
+        choice = input("Enter 1, 2, or 3: ").strip()
+        if choice in DIFFICULTY_LEVELS:
+            return DIFFICULTY_LEVELS[choice]
+        print("Invalid choice. Please enter 1, 2, or 3.")
+
+
+def get_guess(low, high):
+    """Prompt the user for a valid integer guess within range."""
+    while True:
+        raw = input(f"Your guess ({low}-{high}): ").strip()
+        if not raw.lstrip("-").isdigit():
+            print("Please enter a whole number.")
+            continue
+
+        guess = int(raw)
+        if guess < low or guess > high:
+            print(f"Guess must be between {low} and {high}.")
+            continue
+
+        return guess
+
+
+def play_round(level):
+    low, high = level["range"]
+    max_attempts = level["max_attempts"]
+    target = random.randint(low, high)
+
+    print(f"\nI'm thinking of a number between {low} and {high}.")
+    print(f"You have {max_attempts} attempts. Good luck!\n")
+
+    for attempt in range(1, max_attempts + 1):
+        guess = get_guess(low, high)
+
+        if guess == target:
+            print(f"\n🎉 Correct! The number was {target}.")
+            print(f"You got it in {attempt} attempt{'s' if attempt != 1 else ''}.")
+            return True
+
+        remaining = max_attempts - attempt
+        if guess < target:
+            print(f"Higher! ({remaining} attempt{'s' if remaining != 1 else ''} left)\n")
+        else:
+            print(f"Lower! ({remaining} attempt{'s' if remaining != 1 else ''} left)\n")
+
+    print(f"\n😔 Out of attempts! The number was {target}.")
+    return False
+
+
+def main():
+    print("=" * 40)
+    print("        NUMBER GUESSING GAME")
+    print("=" * 40)
+
+    wins = 0
+    rounds_played = 0
+
+    while True:
+        level = choose_difficulty()
+        won = play_round(level)
+        rounds_played += 1
+        if won:
+            wins += 1
+
+        print(f"\nScore: {wins} win{'s' if wins != 1 else ''} out of {rounds_played} round{'s' if rounds_played != 1 else ''} played.")
+
+        again = input("\nPlay again? (y/n): ").strip().lower()
+        if again != "y":
+            print("\nThanks for playing! Goodbye.")
+            break
+        print()
+
+
+if __name__ == "__main__":
+    main()
